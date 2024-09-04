@@ -49,52 +49,71 @@ export const useStickersStore = defineStore('stickersStore', () => {
       }
     }))
     const sticker = stickers.value.findIndex((s) => s.id === id)
-    if (sticker !== -1)
-      stickers.value[sticker].styles = {
-        ...stickers.value[sticker].styles,
-        zIndex: 2
-      }
-    stickersService.save(stickers.value)
+    if (sticker !== -1) {
+      stickers.value[sticker].styles.zIndex = 2
+      stickersService.save(stickers.value)
+    }
   }
 
   function changeTextColor(id: number) {
     const sticker = stickers.value.findIndex((s) => s.id === id)
-    if (sticker !== -1)
-      stickers.value[sticker].styles = {
-        ...stickers.value[sticker].styles,
-        color: stickers.value[sticker].styles.color === 'red' ? 'blue' : 'red'
-      }
-    stickersService.save(stickers.value)
+    if (sticker !== -1) {
+      const newTextColor = stickers.value[sticker].styles.color === 'red' ? 'blue' : 'red'
+      stickers.value[sticker].styles.color = newTextColor
+      stickersService.save(stickers.value)
+    }
   }
 
   function changeBgColor(id: number) {
     const sticker = stickers.value.findIndex((s) => s.id === id)
-    if (sticker !== -1)
-      stickers.value[sticker].styles = {
-        ...stickers.value[sticker].styles,
-        backgroundColor: stickers.value[sticker].styles.backgroundColor === '#543' ? '#123' : '#543'
-      }
-    stickersService.save(stickers.value)
+    if (sticker !== -1) {
+      const newBgColor = stickers.value[sticker].styles.backgroundColor === '#543' ? '#123' : '#543'
+      stickers.value[sticker].styles.backgroundColor = newBgColor
+      stickersService.save(stickers.value)
+    }
   }
 
   function changeFontSize(id: number) {
     const sticker = stickers.value.findIndex((s) => s.id === id)
-    if (sticker !== -1)
-      stickers.value[sticker].styles = {
-        ...stickers.value[sticker].styles,
-        fontSize: stickers.value[sticker].styles.fontSize === '16px' ? '20px' : '16px'
-      }
+    if (sticker !== -1) {
+      const newFontSize = stickers.value[sticker].styles.fontSize === '16px' ? '20px' : '16px'
+      stickers.value[sticker].styles.fontSize = newFontSize
+      stickersService.save(stickers.value)
+    }
+  }
+
+  function updateSize(id: number, size: { height: string; width: string }) {
+    const sticker = stickers.value.findIndex((s) => s.id === id)
+    if (sticker !== -1) {
+      stickers.value[sticker].styles.height = size.height
+      stickers.value[sticker].styles.width = size.width
+      stickersService.save(stickers.value)
+    }
+  }
+
+  function updateContent(id: number, content: string) {
+    const sticker = stickers.value.findIndex((s) => s.id === id)
+    if (sticker !== -1) stickers.value[sticker].content = content
+    stickersService.save(stickers.value)
+  }
+
+  function remove(id: number) {
+    const sticker = stickers.value.findIndex((s) => s.id === id)
+    if (sticker !== -1) stickers.value.splice(sticker, 1)
     stickersService.save(stickers.value)
   }
 
   return {
     stickers,
+    updateContent,
     updatePosition,
     create,
     setActiveSticker,
     getAll,
     changeTextColor,
     changeBgColor,
-    changeFontSize
+    changeFontSize,
+    updateSize,
+    remove
   }
 })

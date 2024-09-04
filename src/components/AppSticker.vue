@@ -14,6 +14,8 @@ let startX = 0
 let startY = 0
 let initialTop = 0
 let initialLeft = 0
+let initialWidth = 0
+let initialHeight = 0
 
 function handleDragStart(e: DragEvent) {
   stickersStore.setActiveSticker(props.sticker.id)
@@ -56,14 +58,48 @@ watch(
     styles.value = newValue
   }
 )
+
+// Изменение размера
+function handleResizeStart(e: MouseEvent) {
+  e.preventDefault()
+  startX = e.clientX
+  startY = e.clientY
+
+  initialWidth = parseInt(styles.value.width)
+  initialHeight = parseInt(styles.value.height)
+
+  window.addEventListener('mousemove', handleResizing)
+  window.addEventListener('mouseup', handleResizeEnd)
+}
+
+function handleResizing(e: MouseEvent) {
+  const deltaX = e.clientX - startX
+  const deltaY = e.clientY - startY
+
+  styles.value.width = initialWidth + deltaX + 'px'
+  styles.value.height = initialHeight + deltaY + 'px'
+}
+
+function handleResizeEnd() {
+  window.removeEventListener('mousemove', handleResizing)
+  window.removeEventListener('mouseup', handleResizeEnd)
+
+  stickersStore.updateSize(props.sticker.id, {
+    width: styles.value.width,
+    height: styles.value.height
+  })
+}
+
+function handleInputContent(e: Event) {
+  const target = e.target as HTMLTextAreaElement
+  stickersStore.updateContent(props.sticker.id, target.value)
+}
 </script>
 
 <template>
   <div
     class="sticker"
-    :style="{
-      ...styles
-    }"
+    :style="styles"
     :draggable="true"
     @click="handleSetActiveSticker"
     @drag="handleDrag"
@@ -73,7 +109,13 @@ watch(
     <button @click="stickersStore.changeTextColor(props.sticker.id)">Change Color</button>
     <button @click="stickersStore.changeBgColor(props.sticker.id)">Change BG</button>
     <button @click="stickersStore.changeFontSize(props.sticker.id)">Change font size</button>
-    {{ props.sticker.content }}
+    <button @click="stickersStore.remove(props.sticker.id)">Delete</button>
+    <textarea
+      :value="props.sticker.content"
+      @input="handleInputContent"
+      :style="{ fontSize: props.sticker.styles.fontSize, color: props.sticker.styles.color }"
+    ></textarea>
+    <div class="resize" @mousedown="handleResizeStart"></div>
   </div>
 </template>
 
@@ -82,5 +124,16 @@ watch(
   position: absolute;
   border: 1px solid black;
   background-color: aqua;
+}
+
+.resize {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  background-color: black;
+  z-index: 3;
+  cursor: se-resize;
+  width: 10px;
+  height: 10px;
 }
 </style>
